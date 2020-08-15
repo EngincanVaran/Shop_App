@@ -1,15 +1,16 @@
 import "package:flutter/material.dart";
+import "package:provider/provider.dart";
 
-import "../models/product.dart";
+import '../providers/product.dart';
 import "../screens/product_detail_screen.dart";
 
 class ProductItem extends StatelessWidget {
-  final Product product;
-
-  ProductItem(this.product);
-
   @override
   Widget build(BuildContext context) {
+    // most used way of provider:
+    final Product product = Provider.of<Product>(context, listen: false);
+    // alternative way is using return Consumer<type> widget
+    // here we combine them to reduce the changing area look favorite icon part for consumer
     return ClipRRect(
       borderRadius: BorderRadius.circular(10),
       child: GestureDetector(
@@ -36,12 +37,15 @@ class ProductItem extends StatelessWidget {
           ),
           footer: GridTileBar(
             backgroundColor: Colors.black87,
-            leading: IconButton(
-              color: Theme.of(context).accentColor,
-              icon: const Icon(
-                Icons.favorite_border,
+            leading: Consumer<Product>(
+              builder: (ctx, product, child) => IconButton(
+                color: Theme.of(context).accentColor,
+                icon: product.isFavorite
+                    ? Icon(Icons.favorite) // favorite
+                    : Icon(Icons.favorite_border), // not favorite
+                onPressed: () => {product.toggleFavoriteStatus()},
               ),
-              onPressed: () => {},
+              //child: Text("Never Changes"), the (child) parameter in the Consumer
             ),
             trailing: IconButton(
               color: Theme.of(context).accentColor,
