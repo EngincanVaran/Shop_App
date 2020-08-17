@@ -38,7 +38,25 @@ class Products with ChangeNotifier {
     ),
   ];
 
+  // bool _showFavoritesOnly = false;
+
+  // void showFavoritesOnly() {
+  //   _showFavoritesOnly = true;
+  //   notifyListeners();
+  // }
+
+  // void showAll() {
+  //   _showFavoritesOnly = false;
+  //   notifyListeners();
+  // }
+
+  List<Product> get getFavItemList {
+    return _items.where((element) => element.isFavorite).toList();
+  }
+
   List<Product> get getItemList {
+    // if (_showFavoritesOnly)
+    //   return _items.where((element) => element.isFavorite).toList();
     return [
       ..._items
     ]; //parse the items and return them as list --> list.copyOf()
