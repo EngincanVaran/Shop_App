@@ -2,13 +2,15 @@ import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 
 import '../providers/product.dart';
+import "../providers/cart.dart";
 import "../screens/product_detail_screen.dart";
 
 class ProductItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // most used way of provider:
-    final Product product = Provider.of<Product>(context, listen: false);
+    final product = Provider.of<Product>(context, listen: false);
+    final cart = Provider.of<Cart>(context, listen: false);
     // alternative way is using return Consumer<type> widget
     // here we combine them to reduce the changing area look favorite icon part for consumer
     return ClipRRect(
@@ -52,7 +54,8 @@ class ProductItem extends StatelessWidget {
               icon: const Icon(
                 Icons.add_shopping_cart,
               ),
-              onPressed: () => {},
+              onPressed: () =>
+                  {cart.addItem(product.id, product.price, product.title)},
             ),
             title: Text(
               product.title,
