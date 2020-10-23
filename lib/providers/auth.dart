@@ -3,6 +3,7 @@ import 'package:http/http.dart' as http;
 import '../models/http_exception.dart';
 import 'dart:convert';
 import 'dart:async';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class Auth with ChangeNotifier {
   static String _apiKey = "AIzaSyCIfeMSm9wgbY-cwEL4WTs7MvWse7q70jA";
@@ -53,7 +54,15 @@ class Auth with ChangeNotifier {
       );
       _autoLogout();
       notifyListeners();
+      final prefs = await SharedPreferences.getInstance();
+      final userData = json.encode({
+        'token': _token,
+        'userId': _userId,
+        'expiryDate': _expiryDate.toIso8601String(),
+      });
+      prefs.setString('userData', userData);
     } catch (error) {
+      print(error.toString());
       throw error;
     }
   }
@@ -72,12 +81,34 @@ class Auth with ChangeNotifier {
     return _authenticate(email, password, url);
   }
 
-  void logout() {
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (prefs.containsKey('userData')) {
+      return false;
+    }
+    final tempData =
+        json.decode(prefs.getString('userData')) as Map<String, dynamic>;
+    final expiryDate = DateTime.parse(tempData['expiryDate']);
+    if (expiryDate.isBefore(DateTime.now())) {
+      return false;
+    }
+    _token = tempData['token'];
+    _userId = tempData['userId'];
+    _expiryDate = tempData['expiryDate'];
+    notifyListeners();
+    _autoLogout();
+    return true;
+  }
+
+  Future<void> logout() async {
     _token = null;
     _userId = null;
     _expiryDate = null;
     _authTimer.cancel();
     notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    // prefs.remove('userData');
+    prefs.clear();
   }
 
   void _autoLogout() {
