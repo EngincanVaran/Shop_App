@@ -47,7 +47,9 @@ class ProductItem extends StatelessWidget {
                 icon: product.isFavorite
                     ? Icon(Icons.favorite) // favorite
                     : Icon(Icons.favorite_border), // not favorite
-                onPressed: () => {product.toggleFavoriteStatus(authData.token)},
+                onPressed: () => {
+                  product.toggleFavoriteStatus(authData.token, authData.userId)
+                },
               ),
               //child: Text("Never Changes"), the (child) parameter in the Consumer
             ),
