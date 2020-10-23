@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../models/http_exception.dart';
 import 'dart:convert';
+import 'dart:async';
 
 class Auth with ChangeNotifier {
   static String _apiKey = "AIzaSyCIfeMSm9wgbY-cwEL4WTs7MvWse7q70jA";
   String _token;
   DateTime _expiryDate;
   String _userId;
+  Timer _authTimer;
 
   bool get isAuth {
     return token != null;
@@ -49,6 +51,7 @@ class Auth with ChangeNotifier {
           seconds: int.parse(body['expiresIn']),
         ),
       );
+      _autoLogout();
       notifyListeners();
     } catch (error) {
       throw error;
@@ -67,5 +70,21 @@ class Auth with ChangeNotifier {
         "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=" +
             _apiKey;
     return _authenticate(email, password, url);
+  }
+
+  void logout() {
+    _token = null;
+    _userId = null;
+    _expiryDate = null;
+    _authTimer.cancel();
+    notifyListeners();
+  }
+
+  void _autoLogout() {
+    if (_authTimer != null) {
+      _authTimer.cancel();
+    }
+    final timeToExpiry = _expiryDate.difference(DateTime.now()).inSeconds;
+    _authTimer = Timer(Duration(seconds: timeToExpiry), logout);
   }
 }
