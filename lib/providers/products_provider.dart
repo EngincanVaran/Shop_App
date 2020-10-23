@@ -40,6 +40,9 @@ class Products with ChangeNotifier {
     //       'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     // ),
   ];
+  final String authToken;
+
+  Products(this.authToken, this._items);
 
   List<Product> get getFavItemList {
     return _items.where((element) => element.isFavorite).toList();
@@ -50,7 +53,7 @@ class Products with ChangeNotifier {
     //   return _items.where((element) => element.isFavorite).toList();
     return [
       ..._items
-    ]; //parse the items and return them as list --> list.copyOf()
+    ]; //parse the _items and return them as list --> list.copyOf()
   }
 
   Product findById(String id) {
@@ -58,7 +61,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> fetchAndSetProducts() async {
-    const url = 'https://shop-app-e534a.firebaseio.com/products.json';
+    final url =
+        'https://shop-app-e534a.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.get(url);
       final body = json.decode(response.body) as Map<String, dynamic>;
@@ -82,7 +86,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product product) async {
-    const url = 'https://shop-app-e534a.firebaseio.com/products.json';
+    final url =
+        'https://shop-app-e534a.firebaseio.com/products.json?auth=$authToken';
     try {
       final response = await http.post(
         url,
@@ -113,7 +118,8 @@ class Products with ChangeNotifier {
   Future<void> updateProduct(String id, Product newProduct) async {
     final prodIndex = _items.indexWhere((prod) => prod.id == id);
     if (prodIndex >= 0) {
-      final url = 'https://shop-app-e534a.firebaseio.com/products/$id.json';
+      final url =
+          'https://shop-app-e534a.firebaseio.com/products/$id.json?auth=$authToken';
       await http.patch(
         url,
         body: json.encode({
@@ -131,7 +137,8 @@ class Products with ChangeNotifier {
   }
 
   Future<void> deleteProduct(String id) async {
-    final url = 'https://shop-app-e534a.firebaseio.com/products/$id.json';
+    final url =
+        'https://shop-app-e534a.firebaseio.com/products/$id.json?auth=$authToken';
     final existingIndex = _items.indexWhere((element) => element.id == id);
     Product existingProduct = _items[existingIndex];
     _items.removeAt(existingIndex);
