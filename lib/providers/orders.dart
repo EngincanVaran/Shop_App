@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 import "cart.dart";
 
@@ -23,13 +25,57 @@ class Orders with ChangeNotifier {
     return [..._orders];
   }
 
-  void addOrder(List<CartItem> cartProducts, double total) {
+  Future<void> fecthAndSetOrders() async {
+    const url = 'https://shop-app-e534a.firebaseio.com/orders.json';
+    final response = await http.get(url);
+    final List<OrderItem> loadedOrders = [];
+    final body = json.decode(response.body) as Map<String, dynamic>;
+    if (body == null) return;
+    body.forEach((id, orderData) {
+      loadedOrders.add(OrderItem(
+        amount: orderData['amount'],
+        dateTime: DateTime.parse(orderData['dateTime']),
+        id: id,
+        products: (orderData['products'] as List<dynamic>)
+            .map(
+              (e) => CartItem(
+                id: e['id'],
+                price: e['price'],
+                quantity: e['quantity'],
+                title: e['title'],
+              ),
+            )
+            .toList(),
+      ));
+    });
+    _orders = loadedOrders.reversed.toList();
+    notifyListeners();
+  }
+
+  Future<void> addOrder(List<CartItem> cartProducts, double total) async {
+    const url = 'https://shop-app-e534a.firebaseio.com/orders.json';
+    final timestamp = DateTime.now();
+    final response = await http.post(
+      url,
+      body: json.encode({
+        'amount': total,
+        'dateTime': timestamp.toIso8601String(),
+        'products': cartProducts
+            .map((e) => {
+                  'id': e.id,
+                  'title': e.title,
+                  'quantity': e.quantity,
+                  'price': e.price,
+                })
+            .toList(),
+      }),
+    );
     _orders.insert(
       0,
       OrderItem(
           amount: total,
-          dateTime: DateTime.now(),
-          id: DateTime.now().toString(),
+          dateTime: timestamp,
+          id: json.decode(response.body)['name'],
           products: cartProducts),
     );
     notifyListeners();
