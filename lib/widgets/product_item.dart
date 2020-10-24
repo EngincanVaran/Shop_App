@@ -1,3 +1,4 @@
+import 'package:Shop_App/providers/auth.dart';
 import "package:flutter/material.dart";
 import "package:provider/provider.dart";
 
@@ -11,6 +12,7 @@ class ProductItem extends StatelessWidget {
     // most used way of provider:
     final product = Provider.of<Product>(context, listen: false);
     final cart = Provider.of<Cart>(context, listen: false);
+    final authData = Provider.of<Auth>(context, listen: false);
     // alternative way is using return Consumer<type> widget
     // here we combine them to reduce the changing area look favorite icon part for consumer
     return ClipRRect(
@@ -45,7 +47,9 @@ class ProductItem extends StatelessWidget {
                 icon: product.isFavorite
                     ? Icon(Icons.favorite) // favorite
                     : Icon(Icons.favorite_border), // not favorite
-                onPressed: () => {product.toggleFavoriteStatus()},
+                onPressed: () => {
+                  product.toggleFavoriteStatus(authData.token, authData.userId)
+                },
               ),
               //child: Text("Never Changes"), the (child) parameter in the Consumer
             ),
