@@ -128,7 +128,7 @@ class _AuthCardState extends State<AuthCard> {
       // Invalid!
       return;
     }
-    _formKey.currentState.save();
+    
     try {
       if (_authMode == AuthMode.Login) {
         // Log user in
