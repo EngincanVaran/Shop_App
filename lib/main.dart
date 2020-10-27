@@ -1,3 +1,4 @@
+import 'package:Shop_App/helpers/custom_route.dart';
 import 'package:Shop_App/providers/auth.dart';
 import 'package:Shop_App/screens/auth_screen.dart';
 import 'package:Shop_App/screens/splash_screen.dart';
@@ -50,10 +51,13 @@ class MyApp extends StatelessWidget {
         builder: (ctx, auth, _) => MaterialApp(
           title: "ShopIt!",
           theme: ThemeData(
-            primarySwatch: Colors.orange,
-            accentColor: Colors.lightGreenAccent,
-            fontFamily: "Lato",
-          ),
+              primarySwatch: Colors.orange,
+              accentColor: Colors.lightGreenAccent,
+              fontFamily: "Lato",
+              pageTransitionsTheme: PageTransitionsTheme(builders: {
+                TargetPlatform.android: CustomPageTransitionBuilder(),
+                TargetPlatform.iOS: CustomPageTransitionBuilder(),
+              })),
           home: auth.isAuth
               ? ProductsOverviewScreen()
               : FutureBuilder(
